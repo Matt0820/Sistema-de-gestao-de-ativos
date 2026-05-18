@@ -60,7 +60,17 @@ def menu():
                 if ativo is None:
                     print("\nAtivo não encontrado.")
                 else:
-                    ativo.exibir_ativo()
+                    # ativo agora é um dict vindo do database
+                    print(f"ID: {ativo.get('id')}")
+                    print(f"Modelo: {ativo.get('modelo')}")
+                    print(f"Marca: {ativo.get('marca')}")
+                    print(f"Ano: {ativo.get('ano')}")
+                    print(f"Placa: {ativo.get('placa')}")
+                    print(f"Valor: {ativo.get('valor')}")
+                    print(f"Diária: {ativo.get('diaria')}")
+                    print(f"Data: {ativo.get('data')}")
+                    print(f"Status: {ativo.get('status')}")
+                    print(f"Depreciação: {ativo.get('depreciacao')}")
 
             elif sub_opcao == "2":
                 controle_cliente.buscar_cliente()
