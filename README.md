@@ -88,9 +88,9 @@ Com ele é possível:
 ### 3. Locação
 - **Cliente** — `Cliente` -> Nome do cliente
 - **Ativo** — `Ativo` -> Indica o modelo e marca do ativo
-- **Data_Inicio** — `String` -> Data do inicio da locação
+- **Data_Inicio** — `Date` -> Data do inicio da locação
 - **Duração** — `Int` -> Duração em Dias
-- **Data_Fim** — `String` -> Data final da locação
+- **Data_Fim** — `Date` -> Data final da locação
 - **Status** — `String` -> Status atual da locação
   - `Ativa`
   - `Finalizada`
