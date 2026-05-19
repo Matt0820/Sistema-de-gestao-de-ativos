@@ -1,5 +1,7 @@
 # SISTEMA DE LOCAÇÃO DE VEÍCULOS 
 
+<img src='./branding (16 por 9).png'>
+
 ##  Descrição do Sistema
 Sistema desenvolvido em **Python** com o objetivo de facilitar o controle e a organização de uma locadora de veículos.
 

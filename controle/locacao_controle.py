@@ -4,7 +4,8 @@ from dados import database
 
 
 class Locacao_Controle:
-    def __init__(self, controle_cliente=None, controle_ativo=None):
+    #comentario do mateus: a variavel ja e declarada dentro do metodo, nao existe necessidade de colocar um =None :)
+    def __init__(self, controle_cliente, controle_ativo):
         database.iniciar_banco()
         self.controle_cliente = controle_cliente
         self.controle_ativo = controle_ativo

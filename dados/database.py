@@ -1,16 +1,18 @@
+#Importa as libs necessarias
 import sqlite3
+#importa a lib datetime
 from datetime import date
 
+#deixa um caminho para o banco de dados
 DB_PATH = "databank.db"
 
-# --- Helpers ---
-
+#cria a conexao com o banco de dados
 def conexao_banco():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-
+#transforma uma linha em um dicionario
 def row_para_dict(row):
     if row is None:
         return None
