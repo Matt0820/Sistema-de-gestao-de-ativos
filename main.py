@@ -2,6 +2,7 @@
 from controle.ativo_controle import Ativo_Controle 
 from controle.cliente_controle import Cliente_Controle
 from controle.locacao_controle import Locacao_Controle
+from controle.manutencao_controle import Manutencao_Controle
 
 # Função para exibir o menu principal
 def exibir_menu():
@@ -15,6 +16,7 @@ def exibir_menu():
     print("5. Relatórios")
     print("6. Editar")
     print("7. Excluir")
+    print("8. Manutenção")
     print("0. Sair")
     print("="*30)
 
@@ -24,6 +26,7 @@ def menu():
     controle_locacao = Locacao_Controle(None, ativo_controle)
     controle_cliente = Cliente_Controle(controle_locacao)
     controle_locacao.controle_cliente = controle_cliente
+    controle_manutencao = Manutencao_Controle()
 
     # Loop principal do sistema para exibir o menu e processar as opções escolhidas pelo usuário
     while True:
@@ -158,6 +161,18 @@ def menu():
             else:
                 print("Opção inválida! Retornando ao menu principal.")
 
+        elif opcao == "8":
+            print("\n--- MANUTENÇÃO ---")
+            print("1. Criar Manutenção")
+            print("2. Listar Manutencoes")
+            sub_opcao = input("Escolha uma opção: ")
+
+            if sub_opcao == "1":
+                controle_manutencao.criar_manutencao()
+            elif sub_opcao == "2":
+                controle_manutencao.listar_manutencao()
+            else:
+                print("Opção inválida! Retornando ao menu principal.")
         # Opção para sair do sistema
         elif opcao == "0":
             print("Encerrando o sistema... Até logo!")

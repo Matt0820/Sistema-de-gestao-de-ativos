@@ -86,7 +86,7 @@ class Ativo_Controle:
         #percorre a lista de ativos e chama o método exibir_ativo de cada objeto ativo para exibir seus dados
         print("\n--- LISTA DE ATIVOS ---\n")
         for ativo in lista_ativos:
-            print(f"ID: {ativo.get('id')}")
+            print(f"ID: {ativo.get('id_ativo')}")
             print(f"Modelo: {ativo.get('modelo')}")
             print(f"Marca: {ativo.get('marca')}")
             print(f"Ano: {ativo.get('ano')}")

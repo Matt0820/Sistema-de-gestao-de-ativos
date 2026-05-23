@@ -22,7 +22,7 @@ class Locacao_Controle:
         # verifica se cliente já tem locação ativa
         if database.listar_locacoes_ativas():
             for l in database.listar_locacoes_ativas():
-                if l.get('cliente_obj') == cnh_busca:
+                if l.get('id_cliente') == cliente.get('id_cliente'):
                     print("Erro: Cliente já possui uma locação ativa!")
                     return
 
@@ -55,11 +55,11 @@ class Locacao_Controle:
         valor = (ativo.get('diaria') or 0) * duracao
         data_fim = data_inicio + timedelta(days=duracao)
 
-        # cadastra locação no banco; armazenamos cliente_obj como CNH e ativo_obj como placa
-        database.cadastrar_locacao(cliente.get('cnh'), ativo.get('placa'), data_inicio, f"{duracao} dias", data_fim, valor, 'Ativa')
+        # cadastra locação no banco usando os IDs corretos
+        database.cadastrar_locacao(cliente.get('id_cliente'), ativo.get('id_ativo'), data_inicio, duracao, data_fim, valor, 'Ativa')
 
         # atualiza status do ativo
-        database.atualizar_ativo(ativo.get('id'), {'status': 'Alugado'})
+        database.atualizar_ativo(ativo.get('id_ativo'), {'status': 'Alugado'})
 
         print("Locação realizada com sucesso!")
 
@@ -94,10 +94,21 @@ class Locacao_Controle:
 
         print("\n--- LISTA DE LOCAÇÕES ---")
         for l in locacoes:
-            print(f"ID Locação: {l.get('id_transacao_mensal')} | Status: {l.get('status')}")
-            print(f"Cliente: {l.get('cliente_obj')}")
-            print(f"Veículo (placa): {l.get('ativo_obj')}")
+            print(f"ID Locação: {l.get('id_locacao')} | Status: {l.get('status')}")
+            cliente_id = l.get('id_cliente')
+            cliente = database.buscar_cliente_por_id(cliente_id)
+            if cliente:
+                print(f"Cliente: {cliente.get('nome')}")
+            else:
+                print("Cliente não encontrado")
+            ativo_id = l.get('id_ativo')
+            ativo = database.buscar_ativo_por_id_ou_placa(ativo_id)
+            if ativo:
+                print(f"Placa: {ativo.get('placa')}")
+            else:
+                print("Ativo não encontrado")
             print(f"Duração: {l.get('duracao')}")
             print(f"Período: {l.get('data_ini')} até {l.get('data_fim')}")
             print(f"Valor Total: R$ {l.get('valor')}")
             print("-" * 30)
+    
