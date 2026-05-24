@@ -200,16 +200,3 @@ class Ativo_Controle:
         database.apagar_ativo(ativo_encontrado.get('id_ativo'))
         print(f"\nAtivo {ativo_encontrado.get('modelo')} "
               f"(ID: {ativo_encontrado.get('id_ativo')}) apagado com sucesso!")
-
-    def _exibir_ativo(self, ativo):
-        print(f"ID: {ativo.get('id_ativo')}")
-        print(f"Modelo: {ativo.get('modelo')}")
-        print(f"Marca: {ativo.get('marca')}")
-        print(f"Ano: {ativo.get('ano')}")
-        print(f"Placa: {ativo.get('placa')}")
-        print(f"Valor: R$ {ativo.get('valor', 0):.2f}")
-        print(f"Diária: R$ {ativo.get('diaria', 0):.2f}")
-        print(f"Data de Aquisição: {ativo.get('data')}")
-        print(f"Status: {ativo.get('status')}")
-        print(f"Depreciação: R$ {ativo.get('depreciacao', 0):.2f}")
-        print("-" * 30)

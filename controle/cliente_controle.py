@@ -138,10 +138,3 @@ class Cliente_Controle:
             return
 
         self._exibir_cliente(cliente)
-
-    def _exibir_cliente(self, cliente):
-        print(f"ID: {cliente.get('id_cliente')}")
-        print(f"Nome: {cliente.get('nome')}")
-        print(f"Idade: {cliente.get('idade')}")
-        print(f"CNH: {cliente.get('cnh')}")
-        print("-" * 30)
