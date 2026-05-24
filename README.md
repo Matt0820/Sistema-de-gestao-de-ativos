@@ -1,4 +1,4 @@
-# LOCAR — Sistema de Gestão de Ativos e Locação de Veículos
+# LOCAR — Locação Organizada Com Automação e Rastramento
 
 <img src="./assets/Banner.jpeg">
 
