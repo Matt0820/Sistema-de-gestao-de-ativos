@@ -1,5 +1,7 @@
 # LOCAR — Sistema de Gestão de Ativos e Locação de Veículos
 
+<img src="./assets/Banner.jpeg">
+
 > Projeto acadêmico desenvolvido em Python para controlar veículos, clientes, locações, manutenções e relatórios financeiros de uma locadora.
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -464,10 +466,3 @@ Valor Total: R$ 1500.00
 - Mateus Henrique Oliveira Vieira
 - Thiago Henrique Bonierski
 - Vitor Gabriel Gonçalves
-
----
-
-## Considerações finais
-
-O projeto demonstra uma aplicação completa de terminal com entidades relacionadas, validações, persistência em banco de dados e relatórios.  
-Mesmo sendo um sistema acadêmico, ele já segue uma estrutura organizada por responsabilidade, separando modelos, controle, dados e execução principal.
