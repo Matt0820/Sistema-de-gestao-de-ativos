@@ -1,42 +1,43 @@
-#Importa a classe Locação e chama a lib "DataTime"
 from datetime import datetime, timedelta
 from dados import database
 
 
 class Locacao_Controle:
+
     def __init__(self, controle_cliente=None, controle_ativo=None):
         database.iniciar_banco()
         self.controle_cliente = controle_cliente
         self.controle_ativo = controle_ativo
+    
+    def buscar_locacao_por_id(self, id_locacao):
+        return database.buscar_locacao_por_id(id_locacao.strip())
 
     def realizar_locacao(self):
         print("\n--- NOVA LOCAÇÃO ---")
         cnh_busca = input("CNH do Cliente: ").strip()
 
-        # verifica cliente
         cliente = database.buscar_cliente_por_cnh(cnh_busca)
         if cliente is None:
             print("Erro: Cliente não encontrado!")
             return
 
-        # verifica se cliente já tem locação ativa
-        if database.listar_locacoes_ativas():
-            for l in database.listar_locacoes_ativas():
-                if l.get('id_cliente') == cliente.get('id_cliente'):
-                    print("Erro: Cliente já possui uma locação ativa!")
-                    return
+        # Verifica se cliente já possui locação ativa
+        for loc in database.listar_locacoes_ativas():
+            if loc.get('id_cliente') == cliente.get('id_cliente'):
+                print("Erro: Cliente já possui uma locação ativa!")
+                return
 
-        # busca ativo
-        busca_ativo = input("Digite o 'ID' ou 'PLACA' do ativo para locação: ").strip().upper()
+        busca_ativo = input("Digite o 'ID' ou 'PLACA' do ativo para locação: ").strip()
         ativo = database.buscar_ativo_por_id_ou_placa(busca_ativo)
         if ativo is None:
             print("Erro: Ativo não encontrado.")
             return
-        if ativo.get('status') != "Disponível":
+
+        status = (ativo.get('status') or '').strip().lower()
+        if status != 'disponível':
             print("Erro: Ativo não está disponível para locação.")
             return
 
-        # coleta duração e datas
         while True:
             duracao_input = input("Duração em Dias: ").strip()
             if duracao_input.isdigit() and int(duracao_input) > 0:
@@ -45,32 +46,46 @@ class Locacao_Controle:
             print("Duração inválida! Digite um número inteiro maior que zero.")
 
         while True:
-            d_ini = input("Digite a Data de Inicio (DD/MM/AAAA): ").strip()
+            d_ini = input("Data de Início (DD/MM/AAAA): ").strip()
             try:
                 data_inicio = datetime.strptime(d_ini, "%d/%m/%Y").date()
                 break
             except ValueError:
-                print("Erro: Formato inválido! Por favor, use o formato DD/MM/AAAA.")
+                print("Erro: Formato inválido! Use DD/MM/AAAA.")
 
         valor = (ativo.get('diaria') or 0) * duracao
         data_fim = data_inicio + timedelta(days=duracao)
 
-        # cadastra locação no banco usando os IDs corretos
-        database.cadastrar_locacao(cliente.get('id_cliente'), ativo.get('id_ativo'), data_inicio, duracao, data_fim, valor, 'Ativa')
-
-        # atualiza status do ativo
+        database.cadastrar_locacao(
+            cliente.get('id_cliente'),
+            ativo.get('id_ativo'),
+            data_inicio,
+            duracao,
+            data_fim,
+            valor,
+            'Ativa'
+        )
         database.atualizar_ativo(ativo.get('id_ativo'), {'status': 'Alugado'})
 
-        print("Locação realizada com sucesso!")
+        print(f"\nLocação realizada com sucesso!")
+        print(f"Cliente: {cliente.get('nome')} | Veículo: {ativo.get('modelo')} ({ativo.get('placa')})")
+        print(f"Período: {data_inicio} até {data_fim} | Valor Total: R$ {valor:.2f}")
 
     def finalizar_locacao(self):
-        locacoes = database.listar_locacoes()
-        if not locacoes:
-            print("Nenhuma locação registrada.")
+        locacoes_ativas = database.listar_locacoes_completas()
+        locacoes_ativas = [l for l in locacoes_ativas if (l.get('status') or '').lower() == 'ativa']
+
+        if not locacoes_ativas:
+            print("\nNenhuma locação ativa no momento.")
             return
 
+        print("\n--- LOCAÇÕES ATIVAS ---")
+        for l in locacoes_ativas:
+            print(f"ID: {l['id_locacao']} | Cliente: {l['cliente']} | "
+                  f"Veículo: {l['ativo']} ({l['placa']}) | Até: {l['data_fim']}")
+
         try:
-            id_loc = int(input("Digite o ID (Número) da locação para finalizar: "))
+            id_loc = int(input("\nDigite o ID da locação para finalizar: "))
         except ValueError:
             print("ID inválido.")
             return
@@ -79,36 +94,26 @@ class Locacao_Controle:
         if loc is None:
             print("Locação não encontrada.")
             return
-        if (loc.get('status') or '').lower() in ('finalizada', 'finalizado'):
-            print(f"Locação {id_loc} já está finalizada.")
+        if (loc.get('status') or '').lower() != 'ativa':
+            print(f"Locação {id_loc} não está ativa.")
             return
 
         database.finalizar_locacao(id_loc)
-        print(f"Locação {id_loc} encerrada!")
+        print(f"\nLocação {id_loc} encerrada com sucesso!")
 
     def listar_locacoes(self):
-        locacoes = database.listar_locacoes()
+        locacoes = database.listar_locacoes_completas()
+
         if not locacoes:
-            print("Nenhuma locação registrada.")
+            print("\nNenhuma locação cadastrada.")
             return
 
-        print("\n--- LISTA DE LOCAÇÕES ---")
+        print("\n=== LOCAÇÕES CADASTRADAS ===")
         for l in locacoes:
-            print(f"ID Locação: {l.get('id_locacao')} | Status: {l.get('status')}")
-            cliente_id = l.get('id_cliente')
-            cliente = database.buscar_cliente_por_id(cliente_id)
-            if cliente:
-                print(f"Cliente: {cliente.get('nome')}")
-            else:
-                print("Cliente não encontrado")
-            ativo_id = l.get('id_ativo')
-            ativo = database.buscar_ativo_por_id_ou_placa(ativo_id)
-            if ativo:
-                print(f"Placa: {ativo.get('placa')}")
-            else:
-                print("Ativo não encontrado")
-            print(f"Duração: {l.get('duracao')}")
-            print(f"Período: {l.get('data_ini')} até {l.get('data_fim')}")
-            print(f"Valor Total: R$ {l.get('valor')}")
+            print(f"ID Locação: {l['id_locacao']}")
+            print(f"Cliente: {l['cliente']}")
+            print(f"Veículo: {l['ativo']} ({l['placa']})")
+            print(f"Período: {l['data_ini']} até {l['data_fim']}")
+            print(f"Valor: R$ {l['valor']:.2f}")
+            print(f"Status: {l['status']}")
             print("-" * 30)
-    

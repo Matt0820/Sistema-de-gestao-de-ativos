@@ -1,65 +1,163 @@
 from dados import database
 from datetime import datetime
+
+
 class Manutencao_Controle:
+
     def __init__(self):
         database.iniciar_banco()
-        self.manutencoes = database.listar_manutencoes()
+    
+    def buscar_manutencao_por_id(self,manutencao_id):
+      return database.buscar_manutencao_por_id(manutencao_id.strip())
     
     def criar_manutencao(self):
-        #pega o id do ativo por id e ve se ele de fato existe
+        print("\n--- NOVA MANUTENÇÃO ---")
+
         try:
-            id_ativo = int(input("Digite o id do ativo em manutencao: "))
-            ativo = database.buscar_ativo_por_id(id_ativo)
-            if not ativo:
-                print("Ativo nao encontrado!")
-                return
-            else:
-                print("Ativo encontrado, redirecionando para o proximo passo")
-                descricao = input("Qual é o serviço realizado? ").strip()
-                while True:
-                    d_ini = input("Digite a Data de Inicio (DD/MM/AAAA): ").strip()
-                    try:
-                        data_inicio = datetime.strptime(d_ini, "%d/%m/%Y").date()
-                        break
-                    except ValueError:
-                        print("Erro: Formato inválido! Por favor, use o formato DD/MM/AAAA.")
-                while True:
-                    d_fim = input("Digite a Data de Retorno (DD/MM/AAAA): ").strip()
-                    try:
-                        data_fim = datetime.strptime(d_fim, "%d/%m/%Y").date()
-                        if data_fim < data_inicio:
-                            print("Invalido, a data de retorno nao pode ser menor que a data de inicio")
-                            return
-                        else:
-                            break
-                    except ValueError:
-                        print("Erro: Formato inválido! Por favor, use o formato DD/MM/AAAA.")      
-                try:
-                    custo = float(input("Qual o valor da manutencao: "))
-                except ValueError:
-                    print("Valor invalido, tente novamente")
-                    return 
-                database.inserir_manutencao(id_ativo,data_inicio, data_fim,descricao,custo)
-                print("Manutencao cadastrada com sucesso!")
+            id_ativo = int(input("Digite o ID do ativo em manutenção: "))
         except ValueError:
-            print("id invalido, tente novamente")
+            print("ID inválido, tente novamente.")
             return
+
+        ativo = database.buscar_ativo_por_id(id_ativo)
+        if not ativo:
+            print("Ativo não encontrado!")
+            return
+
+        status = (ativo.get('status') or '').strip().lower()
+        if status == 'alugado':
+            print(f"Erro: O ativo {ativo.get('modelo')} está alugado e não pode entrar em manutenção.")
+            return
+
+        print(f"Ativo encontrado: {ativo.get('modelo')} ({ativo.get('placa')})")
+
+        descricao = input("Serviço a ser realizado: ").strip()
+
+        while True:
+            d_ini = input("Data de Início (DD/MM/AAAA): ").strip()
+            try:
+                data_inicio = datetime.strptime(d_ini, "%d/%m/%Y").date()
+                break
+            except ValueError:
+                print("Erro: Formato inválido! Use DD/MM/AAAA.")
+
+        while True:
+            d_fim = input("Data de Retorno (DD/MM/AAAA): ").strip()
+            try:
+                data_fim = datetime.strptime(d_fim, "%d/%m/%Y").date()
+                if data_fim < data_inicio:
+                    print("A data de retorno não pode ser anterior à data de início.")
+                    continue
+                break
+            except ValueError:
+                print("Erro: Formato inválido! Use DD/MM/AAAA.")
+
+        while True:
+            try:
+                custo = float(input("Custo da manutenção: R$ "))
+                if custo < 0:
+                    print("Custo inválido!")
+                    continue
+                break
+            except ValueError:
+                print("Valor inválido, tente novamente.")
+
+        database.inserir_manutencao(id_ativo, data_inicio, data_fim, descricao, custo)
+        database.atualizar_ativo(id_ativo, {'status': 'Manutenção'})
+        print("\nManutenção cadastrada com sucesso!")
+
     def listar_manutencao(self):
-        manutencao = database.listar_manutencoes()
-        if not manutencao:
-            print("Nao existem manutencoes ativas no momento")
+        manutencoes = database.listar_manutencoes()
+        if not manutencoes:
+            print("\nNenhuma manutenção cadastrada.")
+            return
+
+        print("\n--- LISTA DE MANUTENÇÕES ---")
+        for m in manutencoes:
+            ativo = database.buscar_ativo_por_id(m.get('id_ativo'))
+            nome_ativo = (f"{ativo.get('modelo')} - {ativo.get('placa')} (ID {ativo.get('id_ativo')})"
+                          if ativo else f"ID {m.get('id_ativo')} não encontrado")
+
+            print(f"ID Manutenção: {m.get('id_manutencao')}")
+            print(f"Ativo: {nome_ativo}")
+            print(f"Descrição: {m.get('descricao')}")
+            print(f"Data de Entrada: {m.get('data')}")
+            print(f"Data de Retorno: {m.get('data_fim')}")
+            print(f"Custo: R$ {m.get('custo', 0):.2f}")
+            print("-" * 30)
+    
+    def finalizar_manutencao(self):
+        ativas = database.listar_manutencoes_ativas()
+        if not ativas:
+            print("\nNenhuma manutenção ativa no momento.")
+            return
+
+        print("\n--- MANUTENÇÕES ATIVAS ---")
+        for m in ativas:
+            ativo = database.buscar_ativo_por_id(m.get('id_ativo'))
+            nome_ativo = (f"{ativo.get('modelo')} ({ativo.get('placa')})"
+            if ativo else f"ID {m.get('id_ativo')}")
+            print(f"ID: {m['id_manutencao']} | Ativo: {nome_ativo} | "
+            f"Descrição: {m['descricao']} | Retorno previsto: {m['data_fim']}")
+        try:
+            id_man = int(input("\nDigite o ID da manutenção para finalizar: "))
+        except ValueError:
+            print("ID inválido.")
+            return
+
+        ok = database.finalizar_manutencao(id_man)
+        if ok:
+            print(f"\nManutenção {id_man} finalizada! Ativo retornou para 'Disponível'.")
         else:
-            for i in manutencao:
-                print(f"id da manutencao: {i.get('id_ativo')}")
-                print(f"descricao da manutencao: {i.get('descricao')}")
-                print(f"Data da entrada: {i.get('data')}")
-                print(f"Data de Retorno: {i.get('data_fim')}")
-                ativo_id = i.get('ativo_id')
-                ativo = database.buscar_ativo_por_id(ativo_id)
-                if ativo:
-                    print(f"Ativo associado: {ativo.get('modelo')} - {ativo.get('placa')} (id {ativo.get('id')})")
-                else:
-                    print(f"Ativo associado: id {ativo_id} nao encontrado")
-                print(f"Pagamento: {i.get('custo')}")
-        #teste isso mateus!
-        
+            print("Manutenção não encontrada.")
+
+    
+    def apagar_manutencao(self):
+        print("\n--- EXCLUIR MANUTENÇÃO ---")
+        try:
+            id_manutencao = int(input("Digite o ID da manutenção a ser excluída: "))
+        except ValueError:
+            print("ID inválido, tente novamente.")
+            return
+        manutencao = database.buscar_manutencao_por_id(id_manutencao)
+        if not manutencao:
+            print("Manutenção não encontrada!")
+            return
+        database.apagar_manutencao(id_manutencao)
+        print("Manutenção excluída com sucesso!")
+    
+    def editar_manutencao(self):
+        print("\n--- EDITAR MANUTENÇÃO ---")
+        try:
+            id_manutencao = int(input("Digite o ID da manutenção a ser editada: "))
+        except ValueError:
+            print("ID inválido, tente novamente.")
+            return
+        manutencao = database.buscar_manutencao_por_id(id_manutencao)
+        if not manutencao:
+            print("Manutenção não encontrada!")
+            return
+
+        print(f"Manutenção atual: {manutencao}")
+        descricao = input("Nova descrição (deixe em branco para manter): ").strip()
+        custo_input = input("Novo custo (deixe em branco para manter): ").strip()
+
+        updates = {}
+        if descricao:
+            updates['descricao'] = descricao
+        if custo_input:
+            try:
+                custo = float(custo_input)
+                if custo < 0:
+                    print("Custo inválido!")
+                    return
+                updates['custo'] = custo
+            except ValueError:
+                print("Valor inválido, tente novamente.")
+                return
+
+        if updates:
+            database.atualizar_manutencao(id_manutencao, updates)
+            print("Manutenção atualizada com sucesso!")
+        else:
+            print("Nenhuma alteração feita.")

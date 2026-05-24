@@ -1,182 +1,473 @@
-# SISTEMA DE LOCAÇÃO DE VEÍCULOS 
+# LOCAR — Sistema de Gestão de Ativos e Locação de Veículos
 
-##  Descrição do Sistema
-Sistema desenvolvido em **Python** com o objetivo de facilitar o controle e a organização de uma locadora de veículos.
+> Projeto acadêmico desenvolvido em Python para controlar veículos, clientes, locações, manutenções e relatórios financeiros de uma locadora.
 
-O sistema permite gerenciar **clientes, veículos (ativos) e locações**, garantindo mais controle e rastreabilidade das operações.
-
-Com ele é possível:
-- Controlar disponibilidade de veículos
-- Gerenciar locações ativas e finalizadas
-- Consultar e atualizar dados rapidamente
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Banco%20de%20Dados-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Funcional-success?style=for-the-badge)
+![Projeto](https://img.shields.io/badge/Projeto-Gest%C3%A3o%20de%20Ativos-black?style=for-the-badge)
 
 ---
 
-## Funcionalidades Implementadas
+## Sumário
 
-### Gestão de Clientes
-- Cadastro de clientes
-- Edição de dados
-- Exclusão de clientes
-- Listagem completa
-- Busca por critérios (CNH,Placa e ID)
-- Validação de maioridade
-- Bloqueio de edição e exclusão, quando há locação ativa
-
----
-
-### Gestão de Ativos (Veículos)
-- Cadastro de ativos
-- Edição de dados
-- Exclusão de ativos
-- Listagem de ativos
-- Consulta de disponibilidade
-- Controle de status:
-  - `Disponível`
-  - `Alugado`
-- Bloqueio de edição e exclusão, quando o veículo está alugado
+- [Sobre o projeto](#sobre-o-projeto)
+- [Problema que o sistema resolve](#problema-que-o-sistema-resolve)
+- [Objetivo](#objetivo)
+- [Principais elementos do sistema](#principais-elementos-do-sistema)
+- [Estrutura de dados e banco](#estrutura-de-dados-e-banco)
+- [Relações entre entidades](#relações-entre-entidades)
+- [Regras de validação](#regras-de-validação)
+- [Funcionalidades](#funcionalidades)
+- [Relatórios](#relatórios)
+- [Base de dados](#base-de-dados)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Como executar](#como-executar)
+- [Demonstração prática](#demonstração-prática)
+- [Autores](#autores)
 
 ---
 
-### Gestão de Locações
-- Criação de locações
-- Finalização de locações
-- Listagem de locações
-- Controle de status:
-  - `Ativa`
-  - `Finalizada`
-- Definição de data de início e duração da locação
-- Validação para impedir:
-  - Cliente com múltiplas locações ativas
-  - Veículo já alugado
+## Sobre o projeto
+
+O **LOCAR** é um sistema de locação de veículos feito em **Python**, com persistência de dados em **SQLite**.  
+Ele funciona por menu no terminal e permite que uma locadora controle seus principais processos: cadastro de veículos, cadastro de clientes, locações, manutenções, consultas e relatórios.
+
+A proposta do projeto é simular um sistema simples, mas completo, usando conceitos fundamentais de programação, modelagem de dados e relacionamento entre entidades.
 
 ---
 
-### Busca e Filtros
-- Busca flexível de clientes e veículos
-- Filtros dinâmicos sem depender de ID único
-- Facilita consultas rápidas no sistema
+## Problema que o sistema resolve
+
+Pequenas locadoras podem ter dificuldade para controlar manualmente:
+
+- quais veículos estão disponíveis;
+- quais veículos estão alugados;
+- quais veículos estão em manutenção;
+- quais clientes possuem locações ativas;
+- quais valores entram por locações;
+- quais custos saem por manutenção;
+- quais dados já foram cadastrados.
+
+O sistema resolve esse problema centralizando essas informações em uma aplicação com banco de dados, evitando duplicidade de dados e bloqueando operações inválidas.
 
 ---
 
-### Relatórios
-- Listagem de ativos disponíveis
-- Visualização de locações ativas
-- Organização geral dos dados cadastrados
+## Objetivo
+
+O objetivo do sistema é permitir que uma locadora consiga:
+
+- cadastrar veículos e clientes;
+- consultar veículos por ID ou placa;
+- consultar clientes por ID ou CNH;
+- realizar locações;
+- finalizar locações;
+- controlar disponibilidade dos veículos;
+- registrar manutenções;
+- impedir locações inválidas;
+- calcular valores de locação;
+- calcular depreciação de ativos;
+- gerar relatórios operacionais e financeiros.
 
 ---
 
-## Estrutura de Dados
+## Principais elementos do sistema
 
-### 1. Cliente
-- **CNH** — `String` -> Carteira Nacional de Habilitação
-- **Nome** — `String` -> Nome do cliente
-- **Idade** — `Int` -> Idade do cliente
-
----
-
-### 2. Ativo (Veículo)
-- **Modelo** — `String` -> Modelo do veículo
-- **Marca** — `String` -> Marca do veículo
-- **Placa** — `String` -> número de identificação
-- **Status** — `String` -> Disponibilidade do ativo
-  - `Disponível`
-  - `Alugado`
+| Elemento | Representação | Função no sistema |
+|---|---|---|
+| Cliente | `Cliente` / tabela `clientes` | Pessoa cadastrada que pode alugar um veículo. |
+| Ativo | `Ativo` / tabela `ativos` | Veículo pertencente à locadora. |
+| Locação | `Locacao` / tabela `locacao` | Registro que liga um cliente a um veículo alugado. |
+| Manutenção | `Manutencao` / tabela `manutencao` | Registro de manutenção feita em um veículo. |
 
 ---
 
-### 3. Locação
-- **Cliente** — `Cliente` -> Nome do cliente
-- **Ativo** — `Ativo` -> Indica o modelo e marca do ativo
-- **Data_Inicio** — `String` -> Data do inicio da locação
-- **Duração** — `Int` -> Duração em Dias
-- **Data_Fim** — `String` -> Data final da locação
-- **Status** — `String` -> Status atual da locação
-  - `Ativa`
-  - `Finalizada`
+## Estrutura de dados e banco
 
----
+O projeto utiliza uma combinação de **classes Python**, **listas**, **dicionários** e **SQLite**.
 
-## Arquitetura do Projeto
+### Classes
 
+As classes representam os principais elementos do domínio:
 
-Estrutura do nosso projeto: 
-
-``` 
-    cadastroecontroledeativos/
-    ├── controle/
-    │   ├─ ativo_controle.py # metodos de controle de ativo
-    |   ├─ cliente_controle.py # metodos de controle do cliente
-    |   └── locacao_controle.py # metodos de controle de locação 
-    ├── modelos/
-    |   ├─ ativo.py # Classe ativo
-    |   ├─ cliente.py # Classe Cliente
-    │   └─ locacao.py # Classe Locação
-    ├── main.py # Interface e ligação central do sistema
-    └── README.md
+```text
+modelos/ativo.py
+modelos/cliente.py
+modelos/locacao.py
+modelos/manutencao.py
 ```
 
+Elas ajudam a organizar os dados de cada entidade e deixam o sistema mais próximo de uma modelagem orientada a objetos.
+
+### Dicionários
+
+As consultas ao banco retornam dados convertidos em dicionários.  
+Isso facilita o acesso aos campos pelo nome:
+
+```python
+ativo['placa']
+cliente['cnh']
+locacao['status']
+```
+
+### Listas de dicionários
+
+Listagens como clientes, ativos, locações e manutenções retornam uma lista de registros:
+
+```python
+[
+    {'id_ativo': 1, 'modelo': 'Civic', 'placa': 'ABC1D23'},
+    {'id_ativo': 2, 'modelo': 'Onix', 'placa': 'QWE8R91'}
+]
+```
+
+Essa estrutura é útil porque o sistema precisa percorrer vários registros para exibir relatórios e listagens.
+
+### SQLite
+
+O SQLite foi usado porque permite persistir os dados em arquivo, sem depender de um servidor externo de banco de dados.
+
+Arquivo principal do banco:
+
+```text
+dados/databank.db
+```
 
 ---
 
-## Problema Resolvido
+## Relações entre entidades
 
-Problemas enfrentados por pequenas locadoras:
-- Falta de organização
-- Dificuldade em rastrear veículos
-- Erros em locações
-- Perda de informações
+O sistema possui relações diretas entre as tabelas principais.
 
-Este sistema resolve esses pontos ao centralizar e padronizar o controle.
+### Cliente e Locação
+
+Um cliente pode ter várias locações ao longo do tempo, mas o sistema impede que ele tenha mais de uma locação ativa ao mesmo tempo.
+
+```text
+Cliente 1:N Locação
+```
+
+### Ativo e Locação
+
+Um veículo pode aparecer em várias locações históricas, mas só pode estar em uma locação ativa por vez.
+
+```text
+Ativo 1:N Locação
+```
+
+### Ativo e Manutenção
+
+Um veículo pode ter vários registros de manutenção ao longo do tempo.
+
+```text
+Ativo 1:N Manutenção
+```
+
+### Locação como tabela de ligação
+
+A tabela `locacao` conecta:
+
+- `id_cliente`
+- `id_ativo`
+- `data_ini`
+- `duracao`
+- `data_fim`
+- `valor`
+- `status`
+
+Ela representa a relação entre cliente e veículo no momento do aluguel.
 
 ---
 
-## Possíveis Melhorias Futuras
+## Regras de validação
 
-### Persistência de Dados
-- Implementar banco de dados
-- Salvar dados em arquivos (`JSON`,`CSV` ou `TXT`) para manter informações entre execuções
-- Evitar perda de dados ao encerrar o sistema
+O sistema possui validações importantes para evitar dados inconsistentes.
+
+### Cliente
+
+- O cliente precisa ter idade maior ou igual a 18 anos.
+- A CNH precisa ser numérica.
+- A CNH não pode estar duplicada.
+
+### Ativo
+
+- A placa precisa seguir um formato válido.
+- A placa não pode estar duplicada.
+- O ano do veículo precisa estar entre 1900 e o ano atual.
+- O valor do veículo precisa ser maior que zero.
+- O valor da diária precisa ser maior que zero.
+
+### Locação
+
+- A duração da locação precisa ser maior que zero.
+- O veículo precisa estar disponível para ser alugado.
+- Um veículo alugado não pode ser alugado novamente.
+- Um cliente com locação ativa não pode iniciar outra locação.
+- O valor total da locação é calculado pela diária multiplicada pela duração.
+
+### Manutenção
+
+- Um ativo alugado não pode entrar em manutenção.
+- Um ativo em manutenção não pode ser apagado.
+- Um ativo alugado não pode ser apagado.
+- A manutenção fica vinculada a um veículo existente.
 
 ---
 
-### Regras de Negócio Mais Avançadas
-- Controle de multas por atraso na devolução
-- Histórico completo de locações por cliente
+## Funcionalidades
+
+O sistema possui um menu principal com as seguintes áreas:
+
+```text
+1. Cadastros
+2. Busca
+3. Locações
+4. Listagens
+5. Relatórios
+6. Editar
+7. Excluir
+8. Manutenção
+0. Sair
+```
+
+### Cadastros
+
+- Cadastrar ativo.
+- Cadastrar cliente.
+
+### Busca
+
+- Buscar ativo por ID ou placa.
+- Buscar cliente por ID ou CNH.
+- Buscar locação por ID.
+- Buscar manutenção por ID.
+
+### Locações
+
+- Realizar locação.
+- Finalizar locação.
+
+### Listagens
+
+- Listar ativos.
+- Listar clientes.
+- Listar locações.
+- Listar manutenções.
+
+### Edição
+
+- Editar ativo.
+- Editar cliente.
+
+### Exclusão
+
+- Excluir ativo.
+- Excluir cliente.
+- Excluir manutenção.
+
+### Manutenção
+
+- Criar manutenção.
+- Listar manutenções.
+- Finalizar manutenção.
 
 ---
 
-### Relatórios Avançados
-- Relatório de faturamento
-- Veículos mais alugados
-- Clientes mais ativos
-- Exportar relatórios (PDF/CSV/TXT)
+## Relatórios
+
+O sistema possui relatórios operacionais e financeiros.
+
+### Relatórios operacionais
+
+- Ativos disponíveis.
+- Ativos alugados.
+- Clientes com locação ativa.
+- Manutenções ativas e finalizadas.
+
+### Relatório financeiro
+
+O relatório financeiro considera entradas e saídas:
+
+| Tipo | Origem |
+|---|---|
+| Entrada | Valores recebidos por locações. |
+| Saída | Custos registrados em manutenções. |
+
+O sistema pode gerar relatório:
+
+- mensal;
+- anual.
+
+Exemplo de cálculo financeiro:
+
+```python
+renda_liquida = entradas - saidas
+```
 
 ---
 
-### Segurança e Validação
-- Melhorar a validação de CNH
-- Sistema de autenticação (login/senha) para os operadores do sistema
-- Controle de permissões (admin/operador) para os operadores do sistema
+## Base de dados
+
+O banco utilizado no projeto é:
+
+```text
+dados/databank.db
+```
+
+### Tabelas principais
+
+| Tabela | Descrição | Quantidade atual |
+|---|---|---:|
+| `ativos` | Veículos cadastrados no sistema | 100 |
+| `clientes` | Clientes cadastrados para locação | 100 |
+| `locacao` | Registros de locações realizadas | 100 |
+| `manutencao` | Registros de manutenção dos veículos | 100 |
+
+### Observação sobre os dados fictícios
+
+A base foi populada com dados fictícios para demonstração do sistema.  
+As placas e CNHs foram geradas de forma aleatória, evitando sequências simples como `LOC0001`, `LOC0002` ou `CNH000001`.
+
+### Status dos ativos na base atual
+
+| Status | Quantidade |
+|---|---:|
+| Disponível | 55 |
+| Alugado | 28 |
+| Manutenção | 17 |
+
+### Status das locações
+
+| Status | Quantidade |
+|---|---:|
+| Ativa | 28 |
+| Finalizada | 72 |
 
 ---
 
-## Como Executar
+## Estrutura do projeto
 
-1. Certifique-se de ter o Python 3.14 instalado
-2. Baixe o projeto  
-3. Acesse a pasta no Terminal
+```text
+Sistema-de-gestao-de-ativos/
+├── controle/
+│   ├── ativo_controle.py
+│   ├── cliente_controle.py
+│   ├── locacao_controle.py
+│   └── manutencao_controle.py
+├── dados/
+│   ├── databank.db
+│   ├── database.py
+│   └── relatorios.py
+├── modelos/
+│   ├── ativo.py
+│   ├── cliente.py
+│   ├── locacao.py
+│   └── manutencao.py
+├── main.py
+└── README.md
+```
+
+### Organização das pastas
+
+| Pasta/arquivo | Responsabilidade |
+|---|---|
+| `main.py` | Menu principal e fluxo de navegação do sistema. |
+| `modelos/` | Classes que representam as entidades do sistema. |
+| `controle/` | Regras de interação, validação e chamadas ao banco. |
+| `dados/database.py` | Criação das tabelas e operações com SQLite. |
+| `dados/relatorios.py` | Relatórios operacionais e financeiros. |
+| `dados/databank.db` | Banco SQLite com os registros do sistema. |
+
+---
+
+## Como executar
+
+### 1. Clonar ou baixar o projeto
+
+Baixe o projeto e acesse a pasta principal:
+
 ```bash
-cd sistema-de-gestao-de-ativos
+cd Sistema-de-gestao-de-ativos
 ```
-4. Execute o arquivo main.py
+
+### 2. Executar o sistema
 
 ```bash
 python main.py
 ```
+
+Dependendo da instalação do Python, também pode ser necessário usar:
+
+```bash
+python3 main.py
+```
+
+### 3. Usar pelo menu
+
+Depois de executar, o sistema exibirá o menu no terminal:
+
+```text
+==============================
+      SISTEMA DE LOCAÇÃO
+==============================
+1. Cadastros
+2. Busca
+3. Locações
+4. Listagens
+5. Relatórios
+6. Editar
+7. Excluir
+8. Manutenção
+0. Sair
+==============================
+```
+
+---
+
+## Demonstração prática
+
+Fluxo básico de funcionamento:
+
+1. O operador cadastra um cliente.
+2. O sistema valida idade e CNH.
+3. O operador cadastra um veículo.
+4. O sistema valida ano, placa, valor e diária.
+5. O operador realiza uma locação.
+6. O sistema verifica se o cliente e o veículo podem participar da locação.
+7. O valor total é calculado automaticamente.
+8. O veículo passa para o status `Alugado`.
+9. Ao finalizar a locação, o veículo volta para `Disponível`.
+
+Exemplo de cálculo:
+
+```text
+Diária do veículo: R$ 250,00
+Duração da locação: 6 dias
+Valor total: R$ 1.500,00
+```
+
+Exemplo de saída esperada:
+
+```text
+Locação realizada com sucesso!
+Cliente: Mateus
+Veículo: Civic - ABC1D23
+Período: 2026-05-15 até 2026-05-21
+Valor Total: R$ 1500.00
+```
+
+---
 ## Autores
-1. Giovanni Bruno Giovanelli
-2. Lucas Gabriel Genovezi
-3. Mateus Henrique Oliveira Vieira
-4. Thiago Henrique Bonierski
-5. Vitor Gabriel Gonçalves
+
+- Giovanni Bruno Giovanelli
+- Lucas Gabriel Genovezi
+- Mateus Henrique Oliveira Vieira
+- Thiago Henrique Bonierski
+- Vitor Gabriel Gonçalves
+
+---
+
+## Considerações finais
+
+O projeto demonstra uma aplicação completa de terminal com entidades relacionadas, validações, persistência em banco de dados e relatórios.  
+Mesmo sendo um sistema acadêmico, ele já segue uma estrutura organizada por responsabilidade, separando modelos, controle, dados e execução principal.
