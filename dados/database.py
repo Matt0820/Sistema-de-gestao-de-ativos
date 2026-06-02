@@ -1,8 +1,9 @@
+import os
 import sqlite3
 from datetime import date
 
-
-DB_PATH = "dados/databank.db"
+BASE_DIR = os.path.dirname(__file__)
+DB_PATH = os.path.join(BASE_DIR, "databank.db")
 
 
 # --- Helpers ---
@@ -31,6 +32,7 @@ def iniciar_banco():
     conectar_tabela_clientes()
     conectar_tabela_locacao()
     conectar_tabela_manutencao()
+    atualizar_categorias_manutencao()
 
 
 def conectar_tabela_ativos():
@@ -98,6 +100,7 @@ def conectar_tabela_manutencao():
             id_manutencao INTEGER PRIMARY KEY AUTOINCREMENT,
             status TEXT DEFAULT 'Ativa',
             id_ativo INTEGER NOT NULL,
+            categoria TEXT,
             data DATE,
             data_fim DATE,
             descricao TEXT,
@@ -105,6 +108,58 @@ def conectar_tabela_manutencao():
             FOREIGN KEY (id_ativo) REFERENCES ativos(id_ativo)
         )
     ''')
+    cursor.execute("PRAGMA table_info(manutencao)")
+    existing_columns = [row['name'] for row in cursor.fetchall()]
+    if 'categoria' not in existing_columns:
+        cursor.execute('ALTER TABLE manutencao ADD COLUMN categoria TEXT')
+    conexao.commit()
+    conexao.close()
+
+
+def classificar_categoria_manutencao(descricao):
+    if not descricao:
+        return 'Outros'
+
+    texto = descricao.lower()
+    if any(token in texto for token in [
+        'óleo', 'oleo', 'troca de óleo', 'troca de oleo', 'filtro', 'motor',
+        'embreagem', 'freio', 'freios', 'pneu', 'suspensão', 'suspensao',
+        'amortecedor', 'câmbio', 'cambio'
+    ]):
+        return 'Mecânica'
+
+    if any(token in texto for token in [
+        'fiação', 'fiacao', 'elétrico', 'eletrico', 'bateria', 'lampada',
+        'lâmpada', 'farol', 'painel', 'alarme', 'radio', 'rádio',
+        'ar condicionado', 'ar-condicionado', 'sensor', 'painel', 'luz'
+    ]):
+        return 'Elétrica'
+
+    if any(token in texto for token in [
+        'pintura', 'polimento', 'estética', 'estetica', 'limpeza',
+        'higienização', 'higienizacao', 'estofado', 'adesivo', 'lataria'
+    ]):
+        return 'Estética'
+
+    return 'Outros'
+
+
+def atualizar_categorias_manutencao():
+    conexao = conexao_banco()
+    cursor = conexao.cursor()
+    cursor.execute("SELECT id_manutencao, descricao, categoria FROM manutencao")
+    manutencoes = cursor.fetchall()
+
+    for manutencao in manutencoes:
+        categoria_atual = manutencao['categoria']
+        descricao = manutencao['descricao']
+        if categoria_atual is None or str(categoria_atual).strip() == '':
+            categoria = classificar_categoria_manutencao(descricao)
+            cursor.execute(
+                'UPDATE manutencao SET categoria = ? WHERE id_manutencao = ?',
+                (categoria, manutencao['id_manutencao'])
+            )
+
     conexao.commit()
     conexao.close()
 
@@ -282,7 +337,7 @@ def buscar_cliente_por_id_ou_cnh(busca):
     cursor = conexao.cursor()
     try:
         id_busca = int(busca)
-        cursor.execute('SELECT * FROM cliente WHERE id_cliente = ?', (id_busca,))
+        cursor.execute('SELECT * FROM clientes WHERE id_cliente = ?', (id_busca,))
         resultado = cursor.fetchone()
         if resultado:
             conexao.close()
@@ -295,10 +350,17 @@ def buscar_cliente_por_id_ou_cnh(busca):
     conexao.close()
     return row_para_dict(resultado)
 
-def apagar_cliente(id_cliente, cnh):
+def apagar_cliente(id_cliente=None, cnh=None):
     conexao = conexao_banco()
     cursor = conexao.cursor()
-    cursor.execute('DELETE FROM clientes WHERE id_cliente OR cnh = ?'(id_cliente, cnh))
+    if id_cliente is not None:
+        cursor.execute('DELETE FROM clientes WHERE id_cliente = ?', (id_cliente,))
+    elif cnh is not None:
+        cursor.execute('DELETE FROM clientes WHERE cnh = ?', (cnh,))
+    else:
+        conexao.close()
+        return
+
     conexao.commit()
     conexao.close()
 
@@ -435,13 +497,16 @@ def finalizar_locacao(id_locacao):
 
 # --- MANUTENÇÃO ---
 
-def inserir_manutencao(id_ativo, data, data_fim, descricao, custo):
+def inserir_manutencao(id_ativo, categoria, data, data_fim, descricao, custo):
+    if not categoria or not str(categoria).strip():
+        categoria = classificar_categoria_manutencao(descricao)
+
     conexao = conexao_banco()
     cursor = conexao.cursor()
     cursor.execute('''
-        INSERT INTO manutencao (id_ativo, data, data_fim, descricao, custo)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (id_ativo, data, data_fim, descricao, custo))
+        INSERT INTO manutencao (id_ativo, categoria, data, data_fim, descricao, custo)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (id_ativo, categoria, data, data_fim, descricao, custo))
     conexao.commit()
     conexao.close()
 
@@ -467,7 +532,7 @@ def buscar_manutencao_por_id(id_manutencao):
 def atualizar_manutencao(id_manutencao, dados: dict):
     if not dados:
         return
-    allowed = ['id_ativo', 'data', 'data_fim', 'descricao', 'custo']
+    allowed = ['id_ativo', 'data', 'data_fim', 'categoria', 'descricao', 'custo']
     campos = []
     valores = []
     for k, v in dados.items():
@@ -565,7 +630,7 @@ def relatorio_financeiro_mes(ano, mes):
     cursor.execute("""
         SELECT manutencao.id_manutencao, ativos.modelo AS ativo,
                ativos.placa, manutencao.data, manutencao.descricao,
-               manutencao.custo, manutencao.status
+                             manutencao.custo, manutencao.categoria, manutencao.status
         FROM manutencao
         JOIN ativos ON manutencao.id_ativo = ativos.id_ativo
         WHERE strftime('%Y', manutencao.data) = ?
@@ -619,7 +684,7 @@ def relatorio_financeiro_ano(ano):
     cursor.execute("""
         SELECT manutencao.id_manutencao, ativos.modelo AS ativo,
                ativos.placa, manutencao.data, manutencao.descricao,
-               manutencao.custo, manutencao.status,
+               manutencao.custo, manutencao.categoria, manutencao.status,
                strftime('%m', manutencao.data) AS mes
         FROM manutencao
         JOIN ativos ON manutencao.id_ativo = ativos.id_ativo

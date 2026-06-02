@@ -2,6 +2,18 @@ from modelos.ativo import Ativo
 from datetime import date
 from dados import database
 import re
+try:
+    from colorama import init, Fore, Style
+    init(autoreset=True)
+except Exception:
+    class _C: pass
+    Fore = _C()
+    Fore.CYAN = ""
+    Fore.RED = ""
+    Fore.GREEN = ""
+    Fore.YELLOW = ""
+    Style = _C()
+    Style.RESET_ALL = ""
 
 
 class Ativo_Controle:
@@ -28,7 +40,7 @@ class Ativo_Controle:
 
 
     def cadastrar_ativo(self):
-        print("\n--- CADASTRO DE ATIVO ---")
+        print(Fore.CYAN + "\n--- CADASTRO DE ATIVO ---" + Style.RESET_ALL)
         modelo = input("Modelo: ").strip()
         marca = input("Marca: ").strip()
 
@@ -82,28 +94,43 @@ class Ativo_Controle:
 
         database.cadastrar_ativo(modelo, marca, ano, placa_input, valor, diaria, data,
                                  status="Disponível", depreciacao=depreciacao)
-        print("\nAtivo cadastrado com sucesso!")
+        print(Fore.GREEN + "\nAtivo cadastrado com sucesso!" + Style.RESET_ALL)
 
     def listar_ativos(self):
         lista_ativos = database.listar_ativos()
         if not lista_ativos:
-            print("\nNenhum ativo cadastrado.")
+            print(Fore.YELLOW + "\nNenhum ativo cadastrado." + Style.RESET_ALL)
             return
 
-        print("\n--- LISTA DE ATIVOS ---\n")
+        print(Fore.CYAN + "\n--- LISTA DE ATIVOS ---\n" + Style.RESET_ALL)
         for ativo in lista_ativos:
-            self._exibir_ativo(ativo)
+            self.exibir_ativo(ativo)
+
+            
+    def exibir_ativo(self, ativo):
+        print(f"ID: {ativo.get('id_ativo')}")
+        print(f"Modelo: {ativo.get('modelo')}")
+        print(f"Marca: {ativo.get('marca')}")
+        print(f"Ano: {ativo.get('ano')}")
+        print(f"Placa: {ativo.get('placa')}")
+        print(f"Valor: R$ {ativo.get('valor'):.2f}")
+        print(f"Diária: R$ {ativo.get('diaria'):.2f}")
+        print(f"Data de Cadastro: {ativo.get('data')}")
+        print(f"Status: {ativo.get('status')}")
+        if ativo.get('depreciacao') is not None:
+            print(f"Depreciação Acumulada: R$ {ativo.get('depreciacao'):.2f}")
+        print("-" * 30)
 
     def editar_ativo(self):
         if not database.listar_ativos():
-            print("Nenhum ativo cadastrado.")
+            print(Fore.YELLOW + "Nenhum ativo cadastrado." + Style.RESET_ALL)
             return
 
         id_editar = input("Digite o 'ID' ou 'PLACA' do ativo para editar: ").strip()
         ativo_encontrado = self.buscar_ativo_por_id_ou_placa(id_editar)
 
         if ativo_encontrado is None:
-            print("\nAtivo não encontrado.")
+            print(Fore.RED + "\nAtivo não encontrado." + Style.RESET_ALL)
             return
 
         status = self._status_normalizado(ativo_encontrado.get('status'))
@@ -112,7 +139,7 @@ class Ativo_Controle:
                   f"(ID: {ativo_encontrado.get('id_ativo')}) não pode ser editado pois está indisponível.")
             return
 
-        print("\n--- Editar Ativo ---")
+        print(Fore.CYAN + "\n--- Editar Ativo ---" + Style.RESET_ALL)
         print("Deixe em branco para manter o valor atual.")
 
         novo_modelo = input(f"Modelo ({ativo_encontrado.get('modelo')}): ").strip()
@@ -158,7 +185,7 @@ class Ativo_Controle:
                 print("Diária inválida. Mantendo valor atual.")
 
         if not dados_atualizados:
-            print("Nenhuma alteração informada.")
+            print(Fore.YELLOW + "Nenhuma alteração informada." + Style.RESET_ALL)
             return
 
         # Recalcula depreciação com os valores finais
@@ -177,7 +204,7 @@ class Ativo_Controle:
             pass
 
         database.atualizar_ativo(ativo_encontrado.get('id_ativo'), dados_atualizados)
-        print("\nAtivo atualizado com sucesso!")
+        print(Fore.GREEN + "\nAtivo atualizado com sucesso!" + Style.RESET_ALL)
 
     def apagar_ativo(self):
         if not database.listar_ativos():

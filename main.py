@@ -3,12 +3,14 @@ from controle.cliente_controle import Cliente_Controle
 from controle.locacao_controle import Locacao_Controle
 from controle.manutencao_controle import Manutencao_Controle
 from dados.relatorios import Relatorios
+import colorama
+
 
 
 def exibir_menu():
-    print("\n" + "="*30)
-    print("      SISTEMA DE LOCAÇÃO")
-    print("="*30)
+    print(colorama.Fore.CYAN + "\n" + "="*30 + colorama.Style.RESET_ALL)
+    print(colorama.Fore.CYAN + "      SISTEMA DE LOCAÇÃO" + colorama.Style.RESET_ALL)
+    print(colorama.Fore.CYAN + "="*30 + colorama.Style.RESET_ALL)
     print("1. Cadastros")
     print("2. Busca")
     print("3. Locações")
@@ -19,7 +21,6 @@ def exibir_menu():
     print("8. Manutenção")
     print("0. Sair")
     print("="*30)
-
 
 def menu():
     ativo_controle = Ativo_Controle()
@@ -34,7 +35,7 @@ def menu():
         opcao = input("Escolha uma opção: ").strip()
 
         if opcao == "1":
-            print("\n--- CADASTROS ---")
+            print(colorama.Fore.CYAN + "\n--- CADASTROS ---" + colorama.Style.RESET_ALL)
             print("1. Cadastrar Ativo")
             print("2. Cadastrar Cliente")
             sub_opcao = input("Escolha uma opção: ").strip()
@@ -46,7 +47,7 @@ def menu():
                 print("Opção inválida!")
 
         elif opcao == "2":
-            print("\n--- BUSCA ---")
+            print(colorama.Fore.CYAN + "\n--- BUSCA ---" + colorama.Style.RESET_ALL)
             print("1. Buscar Ativo")
             print("2. Buscar Cliente")
             print("3. Buscar Locação")
@@ -59,15 +60,15 @@ def menu():
                 if ativo is None:
                     print("\nAtivo não encontrado.")
                 else:
-                    ativo_controle._exibir_ativo(ativo)
+                    ativo_controle.exibir_ativo(ativo)
            
             elif sub_opcao == "2":
-                busca = input("Digite o ID ou CPF do cliente: ").strip()
-                cliente = controle_cliente.buscar_cliente_por_id_ou_cpf(busca)
+                busca = input("Digite o ID ou CNH do cliente: ").strip()
+                cliente = controle_cliente.buscar_cliente_por_id_ou_cnh(busca)
                 if cliente is None:
                     print("\nCliente não encontrado.")
                 else:
-                    controle_cliente._exibir_cliente(cliente)
+                    controle_cliente.exibir_cliente(cliente)
             
             elif sub_opcao == "3":
                 id_locacao = input("Digite o ID da locação: ").strip()
@@ -75,7 +76,7 @@ def menu():
                 if locacao is None:
                     print("\nLocação não encontrada.")
                 else:
-                    controle_locacao.buscar_locacao()
+                    controle_locacao.exibir_locacao(locacao)
             
             elif sub_opcao == "4":
                 id_manutencao = input("Digite o ID da manutenção: ").strip()
@@ -83,13 +84,13 @@ def menu():
                 if manutencao is None:
                     print("\nManutenção não encontrada.")
                 else:
-                    controle_manutencao.buscar_manutencao()
+                    controle_manutencao.exibir_manutencao(manutencao)
             
             else:
                 print("Opção inválida!")
 
         elif opcao == "3":
-            print("\n--- LOCAÇÕES ---")
+            print(colorama.Fore.CYAN + "\n--- LOCAÇÕES ---" + colorama.Style.RESET_ALL)
             print("1. Realizar Locação")
             print("2. Finalizar Locação")
             sub_opcao = input("Escolha uma opção: ").strip()
@@ -101,7 +102,7 @@ def menu():
                 print("Opção inválida!")
 
         elif opcao == "4":
-            print("\n--- LISTAGENS ---")
+            print(colorama.Fore.CYAN + "\n--- LISTAGENS ---" + colorama.Style.RESET_ALL)
             print("1. Listar Ativos")
             print("2. Listar Clientes")
             print("3. Listar Locações")
@@ -119,7 +120,7 @@ def menu():
                 print("Opção inválida!")
 
         elif opcao == "5":
-            print("\n" + "="*10 + " RELATÓRIOS " + "="*10)
+            print(colorama.Fore.CYAN + "\n" + "="*10 + " RELATÓRIOS " + "="*10 + colorama.Style.RESET_ALL)
             print("1. Ativos Disponíveis")
             print("2. Clientes com Locação Ativa")
             print("3. Ativos Alugados")
@@ -140,7 +141,7 @@ def menu():
                 print("Opção inválida!")
                 
         elif opcao == "6":
-            print("\n--- EDITAR ---")
+            print(colorama.Fore.CYAN + "\n--- EDITAR ---" + colorama.Style.RESET_ALL)
             print("1. Editar Ativo")
             print("2. Editar Cliente")
             
@@ -153,7 +154,7 @@ def menu():
                 print("Opção inválida!")
 
         elif opcao == "7":
-            print("\n--- EXCLUIR ---")
+            print(colorama.Fore.CYAN + "\n--- EXCLUIR ---" + colorama.Style.RESET_ALL)
             print("1. Excluir Ativo")
             print("2. Excluir Cliente")
             print("3. Excluir manutencao")
@@ -168,7 +169,7 @@ def menu():
                 print("Opção inválida!")
 
         elif opcao == "8":
-            print("\n--- MANUTENÇÃO ---")
+            print(colorama.Fore.CYAN + "\n--- MANUTENÇÃO ---" + colorama.Style.RESET_ALL)
             print("1. Criar Manutenção")
             print("2. Listar Manutenções")
             print("3. Finalizar Manutenção")
@@ -182,7 +183,7 @@ def menu():
             else:
                 print("Opção inválida!")
         elif opcao == "0":
-            print("Encerrando o sistema... Até logo!")
+            print(colorama.Fore.GREEN + "Encerrando o sistema... Até logo!" + colorama.Style.RESET_ALL)
             break
 
         else:

@@ -1,5 +1,17 @@
 from dados import database
 import re
+try:
+    from colorama import init, Fore, Style
+    init(autoreset=True)
+except Exception:
+    class _C: pass
+    Fore = _C()
+    Fore.CYAN = ""
+    Fore.RED = ""
+    Fore.GREEN = ""
+    Fore.YELLOW = ""
+    Style = _C()
+    Style.RESET_ALL = ""
 
 
 class Cliente_Controle:
@@ -25,8 +37,15 @@ class Cliente_Controle:
                 return True
         return False
 
+    def exibir_cliente(self, cliente):
+        print(f"ID: {cliente.get('id_cliente')}")
+        print(f"Nome: {cliente.get('nome')}")
+        print(f"Idade: {cliente.get('idade')}")
+        print(f"CNH: {cliente.get('cnh')}")
+        print("-" * 30)
+
     def cadastrar_cliente(self):
-        print("\n--- CADASTRO DE CLIENTE ---")
+        print(Fore.CYAN + "\n--- CADASTRO DE CLIENTE ---" + Style.RESET_ALL)
 
         while True:
             nome = input("Nome: ").strip()
@@ -49,20 +68,20 @@ class Cliente_Controle:
                 print("CNH inválida! Deve conter exatamente 11 dígitos numéricos.")
                 continue
             if self.cnh_ja_cadastrada(cnh):
-                print("Erro: CNH já cadastrada!")
+                print(Fore.RED + "Erro: CNH já cadastrada!" + Style.RESET_ALL)
             else:
                 break
 
         database.cadastrar_cliente(nome, idade, cnh)
-        print("\nCliente cadastrado com sucesso!")
+        print(Fore.GREEN + "\nCliente cadastrado com sucesso!" + Style.RESET_ALL)
 
     def listar_clientes(self):
         clientes = database.listar_clientes()
         if not clientes:
-            print("\nNenhum cliente cadastrado.")
+            print(Fore.YELLOW + "\nNenhum cliente cadastrado." + Style.RESET_ALL)
             return
 
-        print("\n--- LISTA DE CLIENTES ---")
+        print(Fore.CYAN + "\n--- LISTA DE CLIENTES ---" + Style.RESET_ALL)
         for c in clientes:
             self._exibir_cliente(c)
 
@@ -74,12 +93,12 @@ class Cliente_Controle:
         cnh_busca = input("Digite a CNH do cliente para editar: ").strip()
         cliente = self.buscar_cliente_por_cnh(cnh_busca)
         if cliente is None:
-            print("\nCliente não encontrado.")
+            print(Fore.RED + "\nCliente não encontrado." + Style.RESET_ALL)
             return
 
         if self.cliente_possui_locacao_ativa(cliente):
-            print(f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
-                  f"está com uma locação ativa e não pode ser editado.")
+            print(Fore.RED + f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
+                f"está com uma locação ativa e não pode ser editado." + Style.RESET_ALL)
             return
 
         print("\n--- EDITAR CLIENTE ---")
@@ -102,7 +121,7 @@ class Cliente_Controle:
 
         if dados:
             database.atualizar_cliente(cliente.get('id_cliente'), dados)
-            print("\nCliente atualizado com sucesso!")
+            print(Fore.GREEN + "\nCliente atualizado com sucesso!" + Style.RESET_ALL)
         else:
             print("Nenhuma alteração informada.")
 
@@ -115,16 +134,16 @@ class Cliente_Controle:
         cliente = self.buscar_cliente_por_id_ou_cnh(busca)
 
         if cliente is None:
-            print("\nCliente não encontrado.")
+            print(Fore.RED + "\nCliente não encontrado." + Style.RESET_ALL)
             return
 
         if self.cliente_possui_locacao_ativa(cliente):
-            print(f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
-                f"está com uma locação ativa e não pode ser apagado.")
+            print(Fore.RED + f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
+                f"está com uma locação ativa e não pode ser apagado." + Style.RESET_ALL)
             return
 
         database.apagar_cliente(cliente.get('id_cliente'))
-        print(f"\nCliente {cliente.get('nome')} (ID: {cliente.get('id_cliente')}) apagado com sucesso!")
+        print(Fore.GREEN + f"\nCliente {cliente.get('nome')} (ID: {cliente.get('id_cliente')}) apagado com sucesso!" + Style.RESET_ALL)
 
     def buscar_cliente(self):
         if not database.listar_clientes():
