@@ -1,19 +1,5 @@
 from datetime import datetime, timedelta
 from dados import database
-try:
-    from colorama import init, Fore, Style
-    init(autoreset=True)
-except Exception:
-    class _C: pass
-    Fore = _C()
-    Fore.CYAN = ""
-    Fore.RED = ""
-    Fore.GREEN = ""
-    Fore.YELLOW = ""
-    Style = _C()
-    Style.RESET_ALL = ""
-
-
 class Locacao_Controle:
 
     def __init__(self, controle_cliente=None, controle_ativo=None):
@@ -38,12 +24,12 @@ class Locacao_Controle:
         print("-" * 30)
 
     def realizar_locacao(self):
-        print(Fore.CYAN + "\n--- NOVA LOCAÇÃO ---" + Style.RESET_ALL)
+        print("\n--- NOVA LOCAÇÃO ---")
         cnh_busca = input("CNH do Cliente: ").strip()
 
         cliente = database.buscar_cliente_por_cnh(cnh_busca)
         if cliente is None:
-            print(Fore.RED + "Erro: Cliente não encontrado!" + Style.RESET_ALL)
+            print("Erro: Cliente não encontrado!")
             return
 
         # Verifica se cliente já possui locação ativa
@@ -55,12 +41,12 @@ class Locacao_Controle:
         busca_ativo = input("Digite o 'ID' ou 'PLACA' do ativo para locação: ").strip()
         ativo = database.buscar_ativo_por_id_ou_placa(busca_ativo)
         if ativo is None:
-            print(Fore.RED + "Erro: Ativo não encontrado." + Style.RESET_ALL)
+            print("Erro: Ativo não encontrado.")
             return
 
         status = (ativo.get('status') or '').strip().lower()
         if status != 'disponível':
-            print(Fore.RED + "Erro: Ativo não está disponível para locação." + Style.RESET_ALL)
+            print("Erro: Ativo não está disponível para locação.")
             return
 
         while True:
@@ -92,7 +78,7 @@ class Locacao_Controle:
         )
         database.atualizar_ativo(ativo.get('id_ativo'), {'status': 'Alugado'})
 
-        print(Fore.GREEN + f"\nLocação realizada com sucesso!" + Style.RESET_ALL)
+        print("\nLocação realizada com sucesso!")
         print(f"Cliente: {cliente.get('nome')} | Veículo: {ativo.get('modelo')} ({ativo.get('placa')})")
         print(f"Período: {data_inicio} até {data_fim} | Valor Total: R$ {valor:.2f}")
 
@@ -101,7 +87,7 @@ class Locacao_Controle:
         locacoes_ativas = [l for l in locacoes_ativas if (l.get('status') or '').lower() == 'ativa']
 
         if not locacoes_ativas:
-            print(Fore.YELLOW + "\nNenhuma locação ativa no momento." + Style.RESET_ALL)
+            print("\nNenhuma locação ativa no momento.")
             return
 
         print("\n--- LOCAÇÕES ATIVAS ---")
@@ -112,7 +98,7 @@ class Locacao_Controle:
         try:
             id_loc = int(input("\nDigite o ID da locação para finalizar: "))
         except ValueError:
-            print(Fore.RED + "ID inválido." + Style.RESET_ALL)
+            print("ID inválido.")
             return
 
         loc = database.buscar_locacao_por_id(id_loc)
@@ -124,7 +110,7 @@ class Locacao_Controle:
             return
 
         database.finalizar_locacao(id_loc)
-        print(Fore.GREEN + f"\nLocação {id_loc} encerrada com sucesso!" + Style.RESET_ALL)
+        print("\nLocação encerrada com sucesso!")
 
     def listar_locacoes(self):
         locacoes = database.listar_locacoes_completas()

@@ -1,6 +1,6 @@
 # LOCAR — Locação Organizada Com Automação e Rastramento
 
-<img src="./assets/Banner.jpeg">
+<img src="./imagens/Banner.jpeg">
 
 > Projeto acadêmico desenvolvido em Python para controlar veículos, clientes, locações, manutenções e relatórios financeiros de uma locadora.
 
@@ -428,7 +428,60 @@ Depois de executar, o sistema exibirá o menu no terminal:
 
 ## Demonstração prática
 
-Fluxo básico de funcionamento:
+### Tela inicial
+
+A tela inicial apresenta todas as funcionalidades disponíveis no sistema, permitindo acesso às operações de cadastro, busca, locação, manutenção e relatórios.
+
+**Imagem da execução:**
+
+![Tela Inicial](./imagens/demonstracao/Execucao-Main-1.png)
+
+---
+
+### Cadastro de cliente
+
+Nesta etapa é realizado o cadastro de um novo cliente. O sistema valida idade mínima, CNH e duplicidade de registros.
+
+**Imagem da execução:**
+
+
+![Cadastro Cliente](./imagens/demonstracao/Execucao-Cadastro-Cliente.png)
+
+---
+
+### Cadastro de ativo
+
+O cadastro de ativos registra os veículos disponíveis para locação, validando placa, ano, valor de mercado e valor da diária.
+
+**Imagem da execução:**
+
+![Cadastro Ativo](./imagens/demonstracao/execucao-cadastro-ativo.png)
+
+---
+
+### Realização de locação
+
+O sistema verifica a disponibilidade do veículo e a situação do cliente antes de criar a locação.
+
+**Imagem da execução:**
+
+
+![Locação](./imagens/demonstracao/execucao-locacao.png)
+
+---
+
+### Registro de manutenção
+
+Permite registrar custos de manutenção e alterar temporariamente a disponibilidade do ativo.
+
+**Imagem da execução:**
+
+![Manutenção](./imagens/demonstracao/execucao-manutencao.png)
+
+---
+
+
+### Fluxo básico de funcionamento
 
 1. O operador cadastra um cliente.
 2. O sistema valida idade e CNH.
@@ -439,26 +492,6 @@ Fluxo básico de funcionamento:
 7. O valor total é calculado automaticamente.
 8. O veículo passa para o status `Alugado`.
 9. Ao finalizar a locação, o veículo volta para `Disponível`.
-
-Exemplo de cálculo:
-
-```text
-Diária do veículo: R$ 250,00
-Duração da locação: 6 dias
-Valor total: R$ 1.500,00
-```
-
-Exemplo de saída esperada:
-
-```text
-Locação realizada com sucesso!
-Cliente: Mateus
-Veículo: Civic - ABC1D23
-Período: 2026-05-15 até 2026-05-21
-Valor Total: R$ 1500.00
-```
-
----
 ## Autores
 
 - Giovanni Bruno Giovanelli

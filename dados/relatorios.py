@@ -1,18 +1,4 @@
 from dados import database
-try:
-    from colorama import init, Fore, Style
-    init(autoreset=True)
-except Exception:
-    class _C: pass
-    Fore = _C()
-    Fore.CYAN = ""
-    Fore.RED = ""
-    Fore.GREEN = ""
-    Fore.YELLOW = ""
-    Style = _C()
-    Style.RESET_ALL = ""
-
-
 class Relatorios():
     def __init__(self):
         database.iniciar_banco()
@@ -37,7 +23,7 @@ class Relatorios():
         print("-" * 30)
 
     def relatorio_ativos_disponiveis(self):
-        print(Fore.CYAN + "\n--- RELATÓRIO DE ATIVOS DISPONÍVEIS ---" + Style.RESET_ALL)
+        print("\n--- RELATÓRIO DE ATIVOS DISPONÍVEIS ---")
         lista_ativos = database.listar_ativos()
         ativos_disponiveis = [
             a for a in lista_ativos
@@ -50,7 +36,7 @@ class Relatorios():
             self._exibir_ativo(ativo)
 
     def relatorio_ativos_alugados(self):
-        print(Fore.CYAN + "\n--- RELATÓRIO DE ATIVOS ALUGADOS ---" + Style.RESET_ALL)
+        print("\n--- RELATÓRIO DE ATIVOS ALUGADOS ---")
         lista_ativos = database.listar_ativos()
         alugados = [
             a for a in lista_ativos
@@ -63,7 +49,7 @@ class Relatorios():
             self._exibir_ativo(ativo)
 
     def relatorio_clientes_ativos(self):
-        print(Fore.CYAN + "\n--- RELATÓRIO DE CLIENTES ATIVOS ---" + Style.RESET_ALL)
+        print("\n--- RELATÓRIO DE CLIENTES ATIVOS ---")
         locacoes_ativas = database.listar_locacoes_ativas()
         if not locacoes_ativas:
             print("Não há clientes com locações ativas no momento.")
@@ -79,7 +65,7 @@ class Relatorios():
                 self._exibir_cliente(cliente)
 
     def relatorio_manutencoes(self):          # <- self adicionado
-        print(Fore.CYAN + "\n--- MANUTENÇÕES ATIVAS ---" + Style.RESET_ALL)
+        print("\n--- MANUTENÇÕES ATIVAS ---")
         ativas = database.listar_manutencoes_ativas()
         if not ativas:
             print("Nenhuma manutenção ativa.")
@@ -88,14 +74,14 @@ class Relatorios():
                 ativo = database.buscar_ativo_por_id(m.get('id_ativo'))
                 nome_ativo = (f"{ativo.get('modelo')} ({ativo.get('placa')})"
                               if ativo else f"ID {m.get('id_ativo')}")
-                print(Fore.CYAN + f"ID: {m['id_manutencao']} | Ativo: {nome_ativo}" + Style.RESET_ALL)
+                print(f"ID: {m['id_manutencao']} | Ativo: {nome_ativo}")
                 print(f"Categoria: {m.get('categoria')}")
                 print(f"Descrição: {m['descricao']}")
                 print(f"Entrada: {m['data']} | Retorno previsto: {m['data_fim']}")
                 print(f"Custo: R$ {m['custo']:.2f}")
                 print("-" * 30)
 
-        print(Fore.CYAN + "\n--- MANUTENÇÕES FINALIZADAS ---" + Style.RESET_ALL)
+        print("\n--- MANUTENÇÕES FINALIZADAS ---")
         finalizadas = database.listar_manutencoes_finalizadas()
         if not finalizadas:
             print("Nenhuma manutenção finalizada.")
@@ -104,7 +90,7 @@ class Relatorios():
                 ativo = database.buscar_ativo_por_id(m.get('id_ativo'))
                 nome_ativo = (f"{ativo.get('modelo')} ({ativo.get('placa')})"
                               if ativo else f"ID {m.get('id_ativo')}")
-                print(Fore.CYAN + f"ID: {m['id_manutencao']} | Ativo: {nome_ativo}" + Style.RESET_ALL)
+                print(f"ID: {m['id_manutencao']} | Ativo: {nome_ativo}")
                 print(f"Categoria: {m.get('categoria')}")
                 print(f"Descrição: {m['descricao']}")
                 print(f"Entrada: {m['data']} | Retorno: {m['data_fim']}")

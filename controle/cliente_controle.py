@@ -1,19 +1,5 @@
 from dados import database
 import re
-try:
-    from colorama import init, Fore, Style
-    init(autoreset=True)
-except Exception:
-    class _C: pass
-    Fore = _C()
-    Fore.CYAN = ""
-    Fore.RED = ""
-    Fore.GREEN = ""
-    Fore.YELLOW = ""
-    Style = _C()
-    Style.RESET_ALL = ""
-
-
 class Cliente_Controle:
 
     def __init__(self, controle_locacao=None):
@@ -45,7 +31,7 @@ class Cliente_Controle:
         print("-" * 30)
 
     def cadastrar_cliente(self):
-        print(Fore.CYAN + "\n--- CADASTRO DE CLIENTE ---" + Style.RESET_ALL)
+        print("\n--- CADASTRO DE CLIENTE ---")
 
         while True:
             nome = input("Nome: ").strip()
@@ -68,22 +54,22 @@ class Cliente_Controle:
                 print("CNH inválida! Deve conter exatamente 11 dígitos numéricos.")
                 continue
             if self.cnh_ja_cadastrada(cnh):
-                print(Fore.RED + "Erro: CNH já cadastrada!" + Style.RESET_ALL)
+                print("Erro: CNH já cadastrada!")
             else:
                 break
 
         database.cadastrar_cliente(nome, idade, cnh)
-        print(Fore.GREEN + "\nCliente cadastrado com sucesso!" + Style.RESET_ALL)
+        print("\nCliente cadastrado com sucesso!")
 
     def listar_clientes(self):
         clientes = database.listar_clientes()
         if not clientes:
-            print(Fore.YELLOW + "\nNenhum cliente cadastrado." + Style.RESET_ALL)
+            print("\nNenhum cliente cadastrado.")
             return
 
-        print(Fore.CYAN + "\n--- LISTA DE CLIENTES ---" + Style.RESET_ALL)
+        print("\n--- LISTA DE CLIENTES ---")
         for c in clientes:
-            self._exibir_cliente(c)
+            self.exibir_cliente(c)
 
     def editar_cliente(self):
         if not database.listar_clientes():
@@ -93,12 +79,12 @@ class Cliente_Controle:
         cnh_busca = input("Digite a CNH do cliente para editar: ").strip()
         cliente = self.buscar_cliente_por_cnh(cnh_busca)
         if cliente is None:
-            print(Fore.RED + "\nCliente não encontrado." + Style.RESET_ALL)
+            print("\nCliente não encontrado.")
             return
 
         if self.cliente_possui_locacao_ativa(cliente):
-            print(Fore.RED + f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
-                f"está com uma locação ativa e não pode ser editado." + Style.RESET_ALL)
+            print(f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
+                f"está com uma locação ativa e não pode ser editado.")
             return
 
         print("\n--- EDITAR CLIENTE ---")
@@ -121,7 +107,7 @@ class Cliente_Controle:
 
         if dados:
             database.atualizar_cliente(cliente.get('id_cliente'), dados)
-            print(Fore.GREEN + "\nCliente atualizado com sucesso!" + Style.RESET_ALL)
+            print("\nCliente atualizado com sucesso!")
         else:
             print("Nenhuma alteração informada.")
 
@@ -134,16 +120,16 @@ class Cliente_Controle:
         cliente = self.buscar_cliente_por_id_ou_cnh(busca)
 
         if cliente is None:
-            print(Fore.RED + "\nCliente não encontrado." + Style.RESET_ALL)
+            print("\nCliente não encontrado.")
             return
 
         if self.cliente_possui_locacao_ativa(cliente):
-            print(Fore.RED + f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
-                f"está com uma locação ativa e não pode ser apagado." + Style.RESET_ALL)
+            print(f"Erro: O cliente {cliente.get('nome')} (CNH: {cliente.get('cnh')}) "
+                f"está com uma locação ativa e não pode ser apagado." )
             return
 
         database.apagar_cliente(cliente.get('id_cliente'))
-        print(Fore.GREEN + f"\nCliente {cliente.get('nome')} (ID: {cliente.get('id_cliente')}) apagado com sucesso!" + Style.RESET_ALL)
+        print(f"\nCliente {cliente.get('nome')} (ID: {cliente.get('id_cliente')}) apagado com sucesso!")
 
     def buscar_cliente(self):
         if not database.listar_clientes():
@@ -156,4 +142,4 @@ class Cliente_Controle:
             print("\nCliente não encontrado.")
             return
 
-        self._exibir_cliente(cliente)
+        self.exibir_cliente(cliente)

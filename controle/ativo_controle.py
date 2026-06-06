@@ -2,20 +2,6 @@ from modelos.ativo import Ativo
 from datetime import date
 from dados import database
 import re
-try:
-    from colorama import init, Fore, Style
-    init(autoreset=True)
-except Exception:
-    class _C: pass
-    Fore = _C()
-    Fore.CYAN = ""
-    Fore.RED = ""
-    Fore.GREEN = ""
-    Fore.YELLOW = ""
-    Style = _C()
-    Style.RESET_ALL = ""
-
-
 class Ativo_Controle:
 
     def __init__(self):
@@ -40,7 +26,7 @@ class Ativo_Controle:
 
 
     def cadastrar_ativo(self):
-        print(Fore.CYAN + "\n--- CADASTRO DE ATIVO ---" + Style.RESET_ALL)
+        print("\n--- CADASTRO DE ATIVO ---")
         modelo = input("Modelo: ").strip()
         marca = input("Marca: ").strip()
 
@@ -94,15 +80,15 @@ class Ativo_Controle:
 
         database.cadastrar_ativo(modelo, marca, ano, placa_input, valor, diaria, data,
                                  status="Disponível", depreciacao=depreciacao)
-        print(Fore.GREEN + "\nAtivo cadastrado com sucesso!" + Style.RESET_ALL)
+        print("\nAtivo cadastrado com sucesso!")
 
     def listar_ativos(self):
         lista_ativos = database.listar_ativos()
         if not lista_ativos:
-            print(Fore.YELLOW + "\nNenhum ativo cadastrado." + Style.RESET_ALL)
+            print("\nNenhum ativo cadastrado.")
             return
 
-        print(Fore.CYAN + "\n--- LISTA DE ATIVOS ---\n" + Style.RESET_ALL)
+        print("\n--- LISTA DE ATIVOS ---\n")
         for ativo in lista_ativos:
             self.exibir_ativo(ativo)
 
@@ -123,14 +109,14 @@ class Ativo_Controle:
 
     def editar_ativo(self):
         if not database.listar_ativos():
-            print(Fore.YELLOW + "Nenhum ativo cadastrado." + Style.RESET_ALL)
+            print("\nNenhum ativo cadastrado.")
             return
 
         id_editar = input("Digite o 'ID' ou 'PLACA' do ativo para editar: ").strip()
         ativo_encontrado = self.buscar_ativo_por_id_ou_placa(id_editar)
 
         if ativo_encontrado is None:
-            print(Fore.RED + "\nAtivo não encontrado." + Style.RESET_ALL)
+            print("\nAtivo não encontrado.")
             return
 
         status = self._status_normalizado(ativo_encontrado.get('status'))
@@ -139,7 +125,7 @@ class Ativo_Controle:
                   f"(ID: {ativo_encontrado.get('id_ativo')}) não pode ser editado pois está indisponível.")
             return
 
-        print(Fore.CYAN + "\n--- Editar Ativo ---" + Style.RESET_ALL)
+        print("\n--- Editar Ativo ---")
         print("Deixe em branco para manter o valor atual.")
 
         novo_modelo = input(f"Modelo ({ativo_encontrado.get('modelo')}): ").strip()
@@ -185,7 +171,7 @@ class Ativo_Controle:
                 print("Diária inválida. Mantendo valor atual.")
 
         if not dados_atualizados:
-            print(Fore.YELLOW + "Nenhuma alteração informada." + Style.RESET_ALL)
+            print("\nNenhuma alteração informada.")
             return
 
         # Recalcula depreciação com os valores finais
@@ -204,7 +190,7 @@ class Ativo_Controle:
             pass
 
         database.atualizar_ativo(ativo_encontrado.get('id_ativo'), dados_atualizados)
-        print(Fore.GREEN + "\nAtivo atualizado com sucesso!" + Style.RESET_ALL)
+        print("\nAtivo atualizado com sucesso!")
 
     def apagar_ativo(self):
         if not database.listar_ativos():
