@@ -501,6 +501,75 @@ Permite registrar custos de manutenção e alterar temporariamente a disponibili
 7. O valor total é calculado automaticamente.
 8. O veículo passa para o status `Alugado`.
 9. Ao finalizar a locação, o veículo volta para `Disponível`.
+
+---
+
+## Melhorias em Relação ao Projeto 2
+
+O Projeto 4 foi desenvolvido a partir da base criada no Projeto 2. Nesta nova etapa, o sistema foi ampliado e reorganizado para se aproximar mais de uma aplicação real de gestão de locações.
+
+### Funcionalidades reaproveitadas
+
+Foram mantidas as funcionalidades essenciais desenvolvidas anteriormente:
+
+* Cadastro de clientes;
+* Cadastro de ativos (veículos);
+* Operações básicas de consulta;
+* Estrutura principal do sistema de locação.
+
+### Melhorias implementadas
+
+Nesta versão foram realizadas diversas melhorias estruturais e funcionais:
+
+#### Persistência de dados com SQLite
+
+Os dados passaram a ser armazenados em banco de dados SQLite, permitindo salvar informações permanentemente entre execuções do sistema.
+
+#### Ampliação da base de dados
+
+O sistema passou a contar com mais de 100 registros em cada uma das principais entidades, permitindo consultas, testes e relatórios mais consistentes.
+
+#### Implementação de relacionamentos
+
+Foram modeladas relações entre as entidades do sistema:
+
+* Cliente → Locação (1:N)
+* Ativo → Locação (1:N)
+* Ativo → Manutenção (1:N)
+
+#### Regras de validação
+
+Foram adicionadas validações para garantir a integridade dos dados:
+
+* Verificação de CNH;
+* Validação de placas;
+* Controle de disponibilidade dos ativos;
+* Bloqueio de operações inválidas.
+
+#### Controle de manutenção
+
+Foi criada uma área específica para registrar e acompanhar manutenções dos veículos.
+
+#### Relatórios financeiros
+
+O sistema passou a gerar relatórios financeiros com base nos valores cadastrados nas locações e nos custos de manutenção.
+
+#### Representação matemática
+
+Foram incorporados cálculos relacionados à operação da locadora:
+
+* Valor total das locações;
+* Receita acumulada;
+* Custos de manutenção;
+* Resultado financeiro;
+* Depreciação de ativos.
+
+### Resultado da evolução do projeto
+
+O sistema evoluiu de uma aplicação com funcionalidades básicas para uma solução mais completa, capaz de armazenar dados, controlar processos, aplicar regras de negócio e gerar informações úteis para análise e tomada de decisão.
+
+---
+
 ## Autores
 
 - Giovanni Bruno Giovanelli
