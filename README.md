@@ -507,4 +507,3 @@ Permite registrar custos de manutenção e alterar temporariamente a disponibili
 - Lucas Gabriel Genovezi
 - Mateus Henrique Oliveira Vieira
 - Thiago Henrique Bonierski
-- Vitor Gabriel Gonçalves
