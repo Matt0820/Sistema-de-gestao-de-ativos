@@ -26,6 +26,7 @@
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Como executar](#como-executar)
 - [Demonstração prática](#demonstração-prática)
+- [Melhorias em Relação ao Projeto 2](#melhorias-em-relacao-ao-projeto-2)
 - [Autores](#autores)
 
 ---
