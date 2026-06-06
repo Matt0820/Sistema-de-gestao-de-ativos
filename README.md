@@ -360,6 +360,15 @@ Sistema-de-gestao-de-ativos/
 │   ├── databank.db
 │   ├── database.py
 │   └── relatorios.py
+├── imagens/
+│   ├── demonstracao/
+│   │   ├── execucao-cadastro-ativo.png
+│   │   ├── Execucao-Cadastro-Cliente.png
+│   │   ├── execucao-locacao.png
+│   │   ├── Execucao-Main-1.png
+│   │   └── execucao-manutencao.png    
+│   ├── Banner.png
+│   └── Profile.png
 ├── modelos/
 │   ├── ativo.py
 │   ├── cliente.py
